@@ -208,7 +208,7 @@
       wordStates.master ? "🟪" : "❌"
     ];
 
-    const text = `Lexiconic ${dateStr}\n${results.join("")}\n8-word-language.org`;
+    const text = `Lexiconic ${dateStr}\n${results.join("")}\nhttps://lexiconic.8-word-language.org`;
     navigator.clipboard.writeText(text).then(() => {
       const status = document.getElementById("status");
       status.textContent = "Copied to clipboard!";
@@ -219,3 +219,4 @@
 
 </body>
 </html>
+
