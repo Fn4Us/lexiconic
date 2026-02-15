@@ -189,7 +189,7 @@
       });
 
       // Update title
-      const dateOptions = { day: '2-digit', month: 'short', year: '4-digit' };
+      const dateOptions = { day: '2-digit', month: 'short', year: 'numeric' };
       const dateStr = new Date().toLocaleDateString("en-US", dateOptions);
       document.title = `Lexiconic - ${dateStr}`;
       document.getElementById("page-title").textContent = `Lexiconic - ${dateStr}`;
@@ -198,7 +198,7 @@
 
   // Copy share text
   function copyShare() {
-    const dateOptions = { day: '2-digit', month: 'short', year: '4-digit' };
+    const dateOptions = { day: '2-digit', month: 'short', year: 'numeric' };
     const dateStr = new Date().toLocaleDateString("en-US", dateOptions);
 
     const results = [
@@ -219,6 +219,7 @@
 
 </body>
 </html>
+
 
 
 
