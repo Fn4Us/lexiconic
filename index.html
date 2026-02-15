@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lexiconic</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.5;
+      background-color: #121212;
+      color: #e0e0e0;
+    }
+
+    h1 {
+      text-align: center;
+      color: #ffffff;
+    }
+
+    .word-card {
+      border: 2px solid #6200ee;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      background-color: #1e1e1e;
+      cursor: pointer;
+      transition: background-color 0.2s, color 0.2s, transform 0.1s;
+    }
+
+    .word-card:hover {
+      transform: scale(1.02);
+    }
+
+    .word-card.clicked {
+      background-color: #6200ee;
+      color: white;
+    }
+
+    .word-text {
+      font-weight: bold;
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .difficulty {
+      font-size: 0.95rem;
+      opacity: 0.7;
+      margin-bottom: 0.5rem;
+    }
+
+    .definition {
+      font-size: 1rem;
+    }
+
+    button.copy-btn {
+      display: block;
+      margin: 2rem auto 0;
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      cursor: pointer;
+      background-color: #6200ee;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+
+    button.copy-btn:hover {
+      background-color: #3700b3;
+    }
+
+    #status {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: #00ff00;
+    }
+
+    #popup {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.9);
+      color: #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 2rem;
+      z-index: 1000;
+    }
+
+    #popup h2 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    #popup p {
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+    }
+
+    #popup button {
+      font-size: 1.2rem;
+      padding: 0.8rem 1.5rem;
+      background-color: #6200ee;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div id="popup">
+  <h2>Lexiconic</h2>
+  <p>Every day, 4 words are given. Your goal is to use all of them in daily conversation.<br>
+     Click a word when you’ve used it today!</p>
+  <button onclick="closePopup()">Let's start!</button>
+</div>
+
+<h1 id="page-title">Lexiconic</h1>
+
+<div id="easy-card" class="word-card">
+  <div id="easy-word" class="word-text">Loading...</div>
+  <div class="difficulty">easy</div>
+  <div id="easy-def" class="definition">(loading definition)</div>
+</div>
+
+<div id="medium-card" class="word-card">
+  <div id="medium-word" class="word-text">Loading...</div>
+  <div class="difficulty">medium</div>
+  <div id="medium-def" class="definition">(loading definition)</div>
+</div>
+
+<div id="hard-card" class="word-card">
+  <div id="hard-word" class="word-text">Loading...</div>
+  <div class="difficulty">hard</div>
+  <div id="hard-def" class="definition">(loading definition)</div>
+</div>
+
+<div id="master-card" class="word-card">
+  <div id="master-word" class="word-text">Loading...</div>
+  <div class="difficulty">master</div>
+  <div id="master-def" class="definition">(loading definition)</div>
+</div>
+
+<button class="copy-btn" onclick="copyShare()">Copy share text</button>
+<div id="status"></div>
+
+<script>
+  // Track clicked cards
+  const wordStates = { easy: false, medium: false, hard: false, master: false };
+  ["easy", "medium", "hard", "master"].forEach(tier => {
+    const card = document.getElementById(`${tier}-card`);
+    card.addEventListener("click", () => {
+      wordStates[tier] = !wordStates[tier];
+      card.classList.toggle("clicked", wordStates[tier]);
+    });
+  });
+
+  function closePopup() {
+    document.getElementById("popup").style.display = "none";
+  }
+
+  function normalizeWord(word) {
+    return /^[A-Z]+$/.test(word) ? word.charAt(0) + word.slice(1).toLowerCase() : word;
+  }
+
+  function normalizeDefinition(def) {
+    return def.split(/(\b[A-Z]{2,}\b)/g)
+              .map(w => /^[A-Z]{2,}$/.test(w) ? w.charAt(0)+w.slice(1).toLowerCase() : w)
+              .join('');
+  }
+
+  // Load the external JSON wordlist
+  fetch("daily_words_1000.json")
+    .then(response => response.json())
+    .then(data => {
+      const today = new Date().toISOString().slice(0,10);
+      const todaysWords = data[today] || Object.values(data)[0]; // fallback to first day if missing
+
+      ["easy", "medium", "hard", "master"].forEach(tier => {
+        document.getElementById(`${tier}-word`).textContent = normalizeWord(todaysWords[tier].word);
+        document.getElementById(`${tier}-def`).textContent = normalizeDefinition(todaysWords[tier].definition);
+      });
+
+      // Update title
+      const dateOptions = { day: '2-digit', month: 'short', year: '2-digit' };
+      const dateStr = new Date().toLocaleDateString("en-US", dateOptions);
+      document.title = `Word of the Day - ${dateStr}`;
+      document.getElementById("page-title").textContent = `Word of the Day - ${dateStr}`;
+    })
+    .catch(err => console.error("Failed to load wordlist:", err));
+
+  // Copy share text
+  function copyShare() {
+    const dateOptions = { day: '2-digit', month: 'short', year: '2-digit' };
+    const dateStr = new Date().toLocaleDateString("en-US", dateOptions);
+
+    const results = [
+      wordStates.easy ? "🟩" : "❌",
+      wordStates.medium ? "🟨" : "❌",
+      wordStates.hard ? "🟥" : "❌",
+      wordStates.master ? "🟪" : "❌"
+    ];
+
+    const text = `Lexiconic ${dateStr}\n${results.join("")}\n8-word-language.org`;
+    navigator.clipboard.writeText(text).then(() => {
+      const status = document.getElementById("status");
+      status.textContent = "Copied to clipboard!";
+      setTimeout(() => status.textContent = "", 2000);
+    });
+  }
+</script>
+
+</body>
+</html>
