@@ -191,8 +191,8 @@
       // Update title
       const dateOptions = { day: '2-digit', month: 'short', year: '2-digit' };
       const dateStr = new Date().toLocaleDateString("en-US", dateOptions);
-      document.title = `Word of the Day - ${dateStr}`;
-      document.getElementById("page-title").textContent = `Word of the Day - ${dateStr}`;
+      document.title = `Lexiconic - ${dateStr}`;
+      document.getElementById("page-title").textContent = `Lexiconic - ${dateStr}`;
     })
     .catch(err => console.error("Failed to load wordlist:", err));
 
@@ -219,4 +219,5 @@
 
 </body>
 </html>
+
 
